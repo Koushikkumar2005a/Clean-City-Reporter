@@ -45,7 +45,7 @@ app.get('/api/test-email', async (req, res) => {
   if (!email) return res.status(400).json({ error: 'Email parameter required (e.g. ?email=your@email.com)' });
 
   try {
-    const { sendOtpEmail } = require('./config/email');
+    const { sendOtpEmail, transporter } = require('./config/email');
     console.log(`Diagnostic: Attempting to send test email to ${email}`);
 
     // Check env vars availability
@@ -54,14 +54,23 @@ app.get('/api/test-email', async (req, res) => {
       BREVO_SMTP_USER: process.env.BREVO_SMTP_USER ? 'SET' : 'MISSING',
       BREVO_SMTP_PASSWORD: process.env.BREVO_SMTP_PASSWORD ? 'SET' : 'MISSING',
       BREVO_FROM_EMAIL: process.env.BREVO_FROM_EMAIL || 'MISSING',
+      ENV_PORT_VAR: process.env.BREVO_SMTP_PORT || 'UNDEFINED',
       PORT: process.env.PORT || '5000'
     };
 
     const result = await sendOtpEmail(email, 'TEST-123456');
 
+    // Get actual transporter config to debug
+    const actualConfig = {
+      host: transporter.options.host,
+      port: transporter.options.port,
+      secure: transporter.options.secure
+    };
+
     res.json({
       message: 'Email test executed',
       env_status: envCheck,
+      active_config: actualConfig,
       result: result
     });
   } catch (err) {

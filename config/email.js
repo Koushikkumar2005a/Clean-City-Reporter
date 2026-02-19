@@ -9,9 +9,11 @@ console.log('   From Email:', process.env.BREVO_FROM_EMAIL || '❌ [Missing]');
 
 // Create email transporter with Brevo SMTP
 const transporter = nodemailer.createTransport({
+  // Force 465 (SSL) if 587 is requested but failing, or default to 465
   host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
-  port: parseInt(process.env.BREVO_SMTP_PORT) || 465, // Changed default to 465 (SSL)
-  secure: parseInt(process.env.BREVO_SMTP_PORT) !== 587, // true for 465 (default), false for 587
+  port: (process.env.BREVO_SMTP_PORT == '587' ? 465 : (parseInt(process.env.BREVO_SMTP_PORT) || 465)),
+  secure: (process.env.BREVO_SMTP_PORT == '587' || parseInt(process.env.BREVO_SMTP_PORT) === 465 || !process.env.BREVO_SMTP_PORT),
+
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASSWORD
@@ -90,4 +92,4 @@ async function sendOtpEmail(email, otp) {
   }
 }
 
-module.exports = { sendOtpEmail };
+module.exports = { sendOtpEmail, transporter };
