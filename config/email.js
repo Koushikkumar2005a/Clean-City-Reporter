@@ -93,4 +93,4 @@ async function sendOtpEmail(email, otp) {
   }
 }
 
-module.exports = { sendOtpEmail, transporter };
+module.exports = { sendOtpEmail };
