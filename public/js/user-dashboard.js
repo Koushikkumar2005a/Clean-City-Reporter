@@ -109,7 +109,6 @@ function displayProfileInfo(user) {
       <p><strong>Email:</strong> ${user.email}</p>
       <p><strong>Phone:</strong> ${user.phone}</p>
       <p><strong>Address:</strong> ${user.address}</p>
-      <p><strong>Zone:</strong> ${user.zone}</p>
       ${user.latitude && user.longitude ? `<p><strong>Location:</strong> <a href="${getMapLink(user.latitude, user.longitude)}" target="_blank">View on Map</a></p>` : ''}
       <p style="font-size: 0.85rem; color: #666; margin-top: 1rem;">Account Status: <span style="color: ${user.isBlocked ? '#e74c3c' : '#27ae60'};">${user.isBlocked ? '🔒 Blocked' : '✅ Active'}</span></p>
     </div>

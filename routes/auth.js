@@ -15,9 +15,9 @@ function generateOtp() {
 
 router.post('/user-signup', async (req, res) => {
   try {
-    const { name, email, phone, password, confirmPassword, address, zone, latitude, longitude } = req.body;
+    const { name, email, phone, password, confirmPassword, address, latitude, longitude } = req.body;
 
-    if (!name || !email || !phone || !password || !confirmPassword || !address || !zone) {
+    if (!name || !email || !phone || !password || !confirmPassword || !address) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -37,13 +37,13 @@ router.post('/user-signup', async (req, res) => {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Ensure both Email and Phone OTP verified
+    // Ensure Email OTP verified
     const record = otpStore[email];
-    if (!record || !record.emailOtp || !record.phoneOtp) {
-      return res.status(400).json({ message: 'OTP not setup. Please request OTP for email and phone first.' });
+    if (!record || !record.emailOtp) {
+      return res.status(400).json({ message: 'OTP not setup. Please request email OTP first.' });
     }
-    if (!record.emailOtp.verified || !record.phoneOtp.verified) {
-      return res.status(400).json({ message: 'Please verify both email and phone OTP before registering.' });
+    if (!record.emailOtp.verified) {
+      return res.status(400).json({ message: 'Please verify email OTP before registering.' });
     }
 
     const user = new User({
@@ -52,7 +52,6 @@ router.post('/user-signup', async (req, res) => {
       phone,
       password: hashedPassword,
       address,
-      zone,
       latitude,
       longitude
     });
@@ -60,8 +59,7 @@ router.post('/user-signup', async (req, res) => {
     await user.save();
     res.status(201).json({ message: 'User registered successfully', userId: user._id });
   } catch (err) {
-    console.error('Signup Error:', err);
-    res.status(500).json({ message: 'Server error: ' + err.message, error: err.message });
+    res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
 

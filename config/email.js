@@ -9,12 +9,9 @@ console.log('   From Email:', process.env.BREVO_FROM_EMAIL || '❌ [Missing]');
 
 // Create email transporter with Brevo SMTP
 const transporter = nodemailer.createTransport({
-  // Try Port 2525 which is commonly used to bypass blocks on 587/465
-  host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
-  port: 2525,
-  secure: false, // Port 2525 is usually not implicit SSL
-  connectionTimeout: 10000, // 10 seconds
-
+  host: process.env.BREVO_SMTP_HOST,
+  port: parseInt(process.env.BREVO_SMTP_PORT) || 587,
+  secure: false,
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASSWORD
@@ -38,7 +35,7 @@ async function sendOtpEmail(email, otp) {
     }
 
     console.log(`📧 Attempting to send email OTP to: ${email}`);
-
+    
     const mailOptions = {
       from: `${process.env.BREVO_FROM_NAME || 'Clean City Reporter'} <${process.env.BREVO_FROM_EMAIL}>`,
       to: email,

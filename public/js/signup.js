@@ -1,6 +1,5 @@
 const otpState = {
-  emailOtpVerified: false,
-  phoneOtpVerified: false
+  emailOtpVerified: false
 };
 
 document.getElementById('userEmail').addEventListener('blur', async () => {
@@ -16,7 +15,7 @@ document.getElementById('userEmail').addEventListener('blur', async () => {
 
   try {
     const response = await apiRequest('/auth/check-email', 'POST', { email });
-    
+
     if (response.exists) {
       statusDiv.textContent = '❌ Email already exists';
       statusDiv.style.color = '#d32f2f';
@@ -60,7 +59,7 @@ document.getElementById('userPhone').addEventListener('blur', async () => {
 
   try {
     const response = await apiRequest('/auth/check-phone', 'POST', { phone });
-    
+
     if (response.exists) {
       statusDiv.textContent = '❌ Phone number already exists';
       statusDiv.style.color = '#d32f2f';
@@ -94,7 +93,7 @@ document.getElementById('userPhone').addEventListener('input', () => {
 document.querySelectorAll('.signup-tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const tabName = tab.dataset.tab;
-    
+
     document.querySelectorAll('.signup-tab').forEach(t => t.classList.remove('active'));
     tab.classList.add('active');
 
@@ -122,14 +121,14 @@ document.getElementById('sendEmailOtp').addEventListener('click', async (e) => {
     statusDiv.style.color = '#666';
 
     await apiRequest('/auth/send-otp', 'POST', { email, type: 'email' });
-    
+
     statusDiv.textContent = '✓ OTP sent to email';
     statusDiv.style.color = '#27ae60';
-    
+
     // Start 10-second timer
     let timeLeft = 10;
     btn.textContent = `Resend in ${timeLeft}s`;
-    
+
     const timerInterval = setInterval(() => {
       timeLeft--;
       if (timeLeft > 0) {
@@ -148,52 +147,7 @@ document.getElementById('sendEmailOtp').addEventListener('click', async (e) => {
   }
 });
 
-// Send Phone OTP with Resend Timer
-document.getElementById('sendPhoneOtp').addEventListener('click', async (e) => {
-  e.preventDefault();
-  const btn = e.target;
-  const email = document.getElementById('userEmail').value;
-  const phone = document.getElementById('userPhone').value;
-  const statusDiv = document.getElementById('phoneOtpStatus');
 
-  if (!email || !phone) {
-    statusDiv.textContent = '❌ Please enter email and phone first';
-    statusDiv.style.color = '#d32f2f';
-    return;
-  }
-
-  try {
-    btn.disabled = true;
-    btn.textContent = 'Sending...';
-    statusDiv.textContent = '📱 Sending OTP to phone...';
-    statusDiv.style.color = '#666';
-
-    await apiRequest('/auth/send-otp', 'POST', { email, phone, type: 'phone' });
-    
-    statusDiv.textContent = '✓ OTP sent to phone';
-    statusDiv.style.color = '#27ae60';
-    
-    // Start 10-second timer
-    let timeLeft = 10;
-    btn.textContent = `Resend in ${timeLeft}s`;
-    
-    const timerInterval = setInterval(() => {
-      timeLeft--;
-      if (timeLeft > 0) {
-        btn.textContent = `Resend in ${timeLeft}s`;
-      } else {
-        clearInterval(timerInterval);
-        btn.textContent = 'Resend OTP';
-        btn.disabled = false;
-      }
-    }, 1000);
-  } catch (error) {
-    statusDiv.textContent = '❌ ' + error.message;
-    statusDiv.style.color = '#d32f2f';
-    btn.disabled = false;
-    btn.textContent = 'Send OTP';
-  }
-});
 
 // Verify Email OTP
 document.getElementById('verifyEmailOtp').addEventListener('click', async (e) => {
@@ -216,7 +170,7 @@ document.getElementById('verifyEmailOtp').addEventListener('click', async (e) =>
     statusDiv.style.color = '#666';
 
     await apiRequest('/auth/verify-otp', 'POST', { email, otp, type: 'email' });
-    
+
     otpState.emailOtpVerified = true;
     statusDiv.textContent = '✓ Email OTP verified successfully';
     statusDiv.style.color = '#27ae60';
@@ -232,42 +186,7 @@ document.getElementById('verifyEmailOtp').addEventListener('click', async (e) =>
   }
 });
 
-// Verify Phone OTP
-document.getElementById('verifyPhoneOtp').addEventListener('click', async (e) => {
-  e.preventDefault();
-  const btn = e.target;
-  const email = document.getElementById('userEmail').value;
-  const otp = document.getElementById('userPhoneOtp').value;
-  const statusDiv = document.getElementById('phoneOtpVerifyStatus');
 
-  if (!otp || otp.length !== 6) {
-    statusDiv.textContent = '❌ Please enter a valid 6-digit OTP';
-    statusDiv.style.color = '#d32f2f';
-    return;
-  }
-
-  try {
-    btn.disabled = true;
-    btn.textContent = 'Verifying...';
-    statusDiv.textContent = 'Verifying...';
-    statusDiv.style.color = '#666';
-
-    await apiRequest('/auth/verify-otp', 'POST', { email, otp, type: 'phone' });
-    
-    otpState.phoneOtpVerified = true;
-    statusDiv.textContent = '✓ Phone OTP verified successfully';
-    statusDiv.style.color = '#27ae60';
-    btn.style.background = '#d4edda';
-    btn.style.color = '#27ae60';
-    btn.textContent = '✓ Phone OTP Verified';
-    btn.disabled = true;
-  } catch (error) {
-    statusDiv.textContent = '❌ ' + error.message;
-    statusDiv.style.color = '#d32f2f';
-    btn.disabled = false;
-    btn.textContent = 'Verify Phone OTP';
-  }
-});
 
 
 
@@ -306,10 +225,7 @@ document.getElementById('userSignupForm').addEventListener('submit', async (e) =
     return;
   }
 
-  if (!otpState.phoneOtpVerified) {
-    showAlert('Please verify phone OTP first', 'danger');
-    return;
-  }
+
 
   try {
     // Create user account after OTPs verified
@@ -357,14 +273,14 @@ document.getElementById('sendMunEmailOtp').addEventListener('click', async (e) =
     statusDiv.style.color = '#666';
 
     await apiRequest('/auth/send-otp', 'POST', { email, type: 'email' });
-    
+
     statusDiv.textContent = '✓ OTP sent to email';
     statusDiv.style.color = '#27ae60';
-    
+
     // Start 10-second timer
     let timeLeft = 10;
     btn.textContent = `Resend in ${timeLeft}s`;
-    
+
     const timerInterval = setInterval(() => {
       timeLeft--;
       if (timeLeft > 0) {
@@ -404,7 +320,7 @@ document.getElementById('verifyMunEmailOtp').addEventListener('click', async (e)
     statusDiv.style.color = '#666';
 
     await apiRequest('/auth/verify-otp', 'POST', { email, otp, type: 'email' });
-    
+
     munOtpState.emailOtpVerified = true;
     statusDiv.textContent = '✓ Email OTP verified successfully';
     statusDiv.style.color = '#27ae60';
@@ -434,7 +350,7 @@ document.getElementById('munEmail').addEventListener('blur', async () => {
 
   try {
     const response = await apiRequest('/auth/check-email', 'POST', { email });
-    
+
     if (response.exists) {
       statusDiv.textContent = '❌ Email already exists';
       statusDiv.style.color = '#d32f2f';
