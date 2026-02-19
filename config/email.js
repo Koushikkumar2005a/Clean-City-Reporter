@@ -9,9 +9,9 @@ console.log('   From Email:', process.env.BREVO_FROM_EMAIL || '❌ [Missing]');
 
 // Create email transporter with Brevo SMTP
 const transporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
+  host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
   port: parseInt(process.env.BREVO_SMTP_PORT) || 587,
-  secure: false,
+  secure: parseInt(process.env.BREVO_SMTP_PORT) === 465, // true for 465, false for other ports
   auth: {
     user: process.env.BREVO_SMTP_USER,
     pass: process.env.BREVO_SMTP_PASSWORD
@@ -35,7 +35,7 @@ async function sendOtpEmail(email, otp) {
     }
 
     console.log(`📧 Attempting to send email OTP to: ${email}`);
-    
+
     const mailOptions = {
       from: `${process.env.BREVO_FROM_NAME || 'Clean City Reporter'} <${process.env.BREVO_FROM_EMAIL}>`,
       to: email,
