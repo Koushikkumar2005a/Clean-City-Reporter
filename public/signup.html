@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign Up - Clean City Reporter</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .signup-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      padding: 1rem;
+    }
+
+    .signup-box {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 500px;
+      padding: 2.5rem;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .signup-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .signup-header h1 {
+      color: #27ae60;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .signup-header p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .signup-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2rem;
+      background: #f0f0f0;
+      border-radius: 4px;
+      padding: 3px;
+    }
+
+    .signup-tab {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: 500;
+      color: #666;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .signup-tab.active {
+      background: white;
+      color: #27ae60;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .signup-form {
+      display: none;
+    }
+
+    .signup-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+
+    .form-group input,
+    .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #27ae60;
+      box-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-row .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .location-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: #f0f0f0;
+      border: 2px dashed #27ae60;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      color: #27ae60;
+      transition: all 0.3s;
+    }
+
+    .location-btn:hover {
+      background: #e8f5e9;
+    }
+
+    .location-btn.active {
+      background: #d4edda;
+      border-color: #28a745;
+      color: #28a745;
+    }
+
+    .signup-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+
+    .signup-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .signup-btn:active {
+      transform: translateY(0);
+    }
+
+    .alert {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .signup-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .signup-footer a {
+      color: #27ae60;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .signup-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .password-requirements {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.25rem;
+    }
+
+    @media (max-width: 768px) {
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <div class="signup-box">
+      <div class="signup-header">
+        <h1>🌿 Join Us</h1>
+        <p>Create your Clean City Reporter Account</p>
+      </div>
+
+      <div class="signup-tabs">
+        <button class="signup-tab active" data-tab="user">User Sign Up</button>
+        <button class="signup-tab" data-tab="municipality">Municipality Sign Up</button>
+      </div>
+
+      <div class="alert alert-success" id="successAlert"></div>
+      <div class="alert alert-danger" id="errorAlert"></div>
+
+      <!-- User Signup Form -->
+      <form class="signup-form active" id="userSignupForm">
+        <div class="form-group">
+          <label for="userName">Full Name</label>
+          <input type="text" id="userName" name="name" placeholder="Enter your full name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="userEmail">Email Address</label>
+          <input type="email" id="userEmail" name="email" placeholder="your@email.com" required>
+          <div id="emailCheckStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+        </div>
+
+        <div class="form-group">
+          <label for="userPhone">Phone Number</label>
+          <input type="tel" id="userPhone" name="phone" placeholder="Your phone number" required>
+          <div id="phoneCheckStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+        </div>
+
+        <!-- OTP Verification Section -->
+        <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin: 1.5rem 0;">
+          <h3 style="color: #27ae60; font-size: 1rem; margin-bottom: 1rem;">📱 OTP Verification</h3>
+          
+          <!-- Email OTP -->
+          <div class="form-group">
+            <label for="userEmailOtp">Email OTP</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="userEmailOtp" name="emailOtp" placeholder="6-digit OTP" maxlength="6" style="flex: 1;">
+              <button type="button" class="signup-btn" id="sendEmailOtp" style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
+            </div>
+            <div id="emailOtpStatus" style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;"></div>
+            <button type="button" class="signup-btn" id="verifyEmailOtp" style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Email OTP</button>
+            <div id="emailOtpVerifyStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+          </div>
+
+          <!-- Phone OTP -->
+          <div class="form-group">
+            <label for="userPhoneOtp">Phone OTP</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="userPhoneOtp" name="phoneOtp" placeholder="6-digit OTP" maxlength="6" style="flex: 1;">
+              <button type="button" class="signup-btn" id="sendPhoneOtp" style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
+            </div>
+            <div id="phoneOtpStatus" style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;"></div>
+            <button type="button" class="signup-btn" id="verifyPhoneOtp" style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Phone OTP</button>
+            <div id="phoneOtpVerifyStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="userAddress">Address</label>
+          <input type="text" id="userAddress" name="address" placeholder="Your residential address" required>
+        </div>
+
+        <div class="form-group">
+          <label for="userZone">Zone</label>
+          <select id="userZone" name="zone" required>
+            <option value="">Select your zone</option>
+            <option value="Zone 1">Zone 1</option>
+            <option value="Zone 2">Zone 2</option>
+            <option value="Zone 3">Zone 3</option>
+            <option value="Zone 4">Zone 4</option>
+            <option value="Zone 5">Zone 5</option>
+            <option value="Zone 6">Zone 6</option>
+            <option value="Zone 7">Zone 7</option>
+            <option value="Zone 8">Zone 8</option>
+            <option value="Zone 9">Zone 9</option>
+            <option value="Zone 10">Zone 10</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="userPassword">Password</label>
+          <input type="password" id="userPassword" name="password" placeholder="Create a strong password" required>
+          <div class="password-requirements">Password must be at least 6 characters</div>
+        </div>
+
+        <div class="form-group">
+          <label for="userConfirmPassword">Confirm Password</label>
+          <input type="password" id="userConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+        </div>
+
+        <button type="submit" class="signup-btn">Create User Account</button>
+      </form>
+
+      <!-- Municipality Signup Form -->
+      <form class="signup-form" id="municipalitySignupForm">
+        <div class="form-group">
+          <label for="munName">Municipality Name</label>
+          <input type="text" id="munName" name="name" placeholder="Municipality office name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="munRegNumber">Registration Number</label>
+          <select id="munRegNumber" name="regNumber" required>
+            <option value="">-- Select Registration Number --</option>
+            <option value="01">01 - Zone 1</option>
+            <option value="02">02 - Zone 2</option>
+            <option value="03">03 - Zone 3</option>
+            <option value="04">04 - Zone 4</option>
+            <option value="05">05 - Zone 5</option>
+            <option value="06">06 - Zone 6</option>
+            <option value="07">07 - Zone 7</option>
+            <option value="08">08 - Zone 8</option>
+            <option value="09">09 - Zone 9</option>
+            <option value="10">10 - Zone 10</option>
+          </select>
+          <div class="alert alert-danger" id="invalidRegAlert" style="display: none; margin-top: 0.5rem;">Invalid registration number. Please select from 01-10.</div>
+        </div>
+
+        <div class="form-group">
+          <label for="munLocation">Municipality Office Location</label>
+          <input type="text" id="munLocation" name="location" placeholder="Office location/address" required>
+        </div>
+
+        <div class="form-group">
+          <label for="munEmail">Email Address</label>
+          <input type="email" id="munEmail" name="email" placeholder="municipality@email.com" required>
+          <div id="munEmailCheckStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+        </div>
+
+        <!-- OTP Verification Section -->
+        <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin: 1.5rem 0;">
+          <h3 style="color: #27ae60; font-size: 1rem; margin-bottom: 1rem;">📧 Email OTP Verification</h3>
+          
+          <!-- Email OTP -->
+          <div class="form-group">
+            <label for="munEmailOtp">Email OTP</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="munEmailOtp" name="emailOtp" placeholder="6-digit OTP" maxlength="6" style="flex: 1;">
+              <button type="button" class="signup-btn" id="sendMunEmailOtp" style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
+            </div>
+            <div id="munEmailOtpStatus" style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;"></div>
+            <button type="button" class="signup-btn" id="verifyMunEmailOtp" style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Email OTP</button>
+            <div id="munEmailOtpVerifyStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="munPassword">Password</label>
+          <input type="password" id="munPassword" name="password" placeholder="Create a strong password" required>
+          <div class="password-requirements">Password must be at least 6 characters</div>
+        </div>
+
+        <div class="form-group">
+          <label for="munConfirmPassword">Confirm Password</label>
+          <input type="password" id="munConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+        </div>
+
+        <button type="submit" class="signup-btn">Create Municipality Account</button>
+      </form>
+
+      <div class="signup-footer">
+        Already have an account? <a href="/login">Login Here</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/signup.js"></script>
+</body>
+</html>

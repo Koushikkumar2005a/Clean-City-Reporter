@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login - Clean City Reporter</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .login-container {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      padding: 1rem;
+    }
+
+    .login-box {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+      width: 100%;
+      max-width: 400px;
+      padding: 2.5rem;
+    }
+
+    .login-header {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .login-header h1 {
+      color: #27ae60;
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .login-header p {
+      color: #666;
+      font-size: 0.95rem;
+    }
+
+    .login-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 2rem;
+      background: #f0f0f0;
+      border-radius: 4px;
+      padding: 3px;
+    }
+
+    .login-tab {
+      flex: 1;
+      padding: 0.75rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: 500;
+      color: #666;
+      border-radius: 2px;
+      transition: all 0.3s;
+    }
+
+    .login-tab.active {
+      background: white;
+      color: #27ae60;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .login-form {
+      display: none;
+    }
+
+    .login-form.active {
+      display: block;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #27ae60;
+      box-shadow: 0 0 5px rgba(39, 174, 96, 0.3);
+    }
+
+    .login-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: linear-gradient(135deg, #27ae60 0%, #229954 100%);
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 0.5rem;
+    }
+
+    .login-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(39, 174, 96, 0.3);
+    }
+
+    .login-btn:active {
+      transform: translateY(0);
+    }
+
+    .alert {
+      margin-bottom: 1rem;
+      padding: 1rem;
+      border-radius: 4px;
+      display: none;
+    }
+
+    .alert.show {
+      display: block;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 1.5rem;
+      font-size: 0.95rem;
+      color: #666;
+    }
+
+    .login-footer a {
+      color: #27ae60;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    .loading {
+      display: none;
+      text-align: center;
+    }
+
+    .spinner {
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #27ae60;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-box">
+      <div class="login-header">
+        <h1>🌿 Welcome Back</h1>
+        <p>Clean City Reporter Login</p>
+      </div>
+
+      <div class="login-tabs">
+        <button class="login-tab active" data-tab="user">User</button>
+        <button class="login-tab" data-tab="municipality">Municipality</button>
+      </div>
+
+      <div class="alert alert-success" id="successAlert"></div>
+      <div class="alert alert-danger" id="errorAlert"></div>
+
+      <!-- User Login Form -->
+      <form class="login-form active" id="userLoginForm">
+        <div class="form-group">
+          <label for="userEmail">Email Address</label>
+          <input type="email" id="userEmail" name="email" placeholder="your@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="userPassword">Password</label>
+          <input type="password" id="userPassword" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login as User</button>
+      </form>
+
+      <!-- Municipality Login Form -->
+      <form class="login-form" id="municipalityLoginForm">
+        <div class="form-group">
+          <label for="munEmail">Email Address</label>
+          <input type="email" id="munEmail" name="email" placeholder="municipality@email.com" required>
+        </div>
+
+        <div class="form-group">
+          <label for="munPassword">Password</label>
+          <input type="password" id="munPassword" name="password" placeholder="Enter your password" required>
+        </div>
+
+        <button type="submit" class="login-btn">Login as Municipality</button>
+      </form>
+
+      <div class="login-footer">
+        Don't have an account? <a href="/signup">Sign Up Here</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+</body>
+</html>

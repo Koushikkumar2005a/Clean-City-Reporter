@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Municipality Dashboard - Clean City Reporter</title>
+  <link rel="stylesheet" href="css/style.css">
+  <style>
+    .dashboard-container {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    .sidebar {
+      width: 250px;
+      background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+      color: white;
+      padding: 1.5rem 0;
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      text-align: center;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+      margin-bottom: 1rem;
+    }
+
+    .sidebar-header h2 {
+      font-size: 1.2rem;
+      margin: 0;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+    }
+
+    .sidebar-menu li {
+      margin: 0;
+    }
+
+    .sidebar-menu a {
+      display: block;
+      padding: 1rem 1.5rem;
+      color: white;
+      text-decoration: none;
+      transition: all 0.3s;
+      cursor: pointer;
+      border-left: 3px solid transparent;
+    }
+
+    .sidebar-menu a:hover,
+    .sidebar-menu a.active {
+      background: rgba(255, 255, 255, 0.1);
+      border-left-color: white;
+    }
+
+    .sidebar-footer {
+      position: absolute;
+      bottom: 0;
+      width: 100%;
+      padding: 1rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .logout-btn {
+      width: 100%;
+      padding: 0.75rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: all 0.3s;
+    }
+
+    .logout-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .main-content {
+      flex: 1;
+      margin-left: 250px;
+      background: #f5f5f5;
+    }
+
+    .navbar {
+      background: white;
+      padding: 1.5rem;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar h1 {
+      color: #f39c12;
+      margin: 0;
+      font-size: 1.5rem;
+    }
+
+    .profile-top {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      cursor: pointer;
+    }
+
+    .profile-pic-small {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #f39c12;
+    }
+
+    .content {
+      padding: 2rem;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.3s;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .complaint-list {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .complaint-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      border-left: 4px solid #f39c12;
+      transition: all 0.3s;
+    }
+
+    .complaint-card:hover {
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+    }
+
+    .complaint-card img {
+      max-width: 300px;
+      height: auto;
+      border-radius: 4px;
+      margin: 1rem 0;
+    }
+
+    .complaint-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .complaint-header-left {
+      flex: 1;
+    }
+
+    .complaint-header-left h3 {
+      margin: 0 0 0.5rem 0;
+      color: #f39c12;
+    }
+
+    .complaint-date {
+      font-size: 0.85rem;
+      color: #666;
+    }
+
+    .complaint-details {
+      background: #f9f9f9;
+      padding: 1rem;
+      border-radius: 4px;
+      margin: 1rem 0;
+      font-size: 0.95rem;
+    }
+
+    .complaint-details p {
+      margin: 0.5rem 0;
+    }
+
+    .complaint-actions {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-top: 1rem;
+    }
+
+    .complaint-actions button {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.3s;
+      flex: 1;
+      min-width: 150px;
+    }
+
+    .status-select {
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .profile-modal {
+      display: none;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    .profile-modal-content {
+      background-color: white;
+      margin: 5% auto;
+      padding: 2rem;
+      border-radius: 8px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .close {
+      color: #aaa;
+      float: right;
+      font-size: 2rem;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    .close:hover {
+      color: #f39c12;
+    }
+
+    .profile-edit-form {
+      display: none;
+    }
+
+    .profile-edit-form.active {
+      display: block;
+    }
+
+    .upload-area {
+      border: 2px dashed #f39c12;
+      border-radius: 4px;
+      padding: 2rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 1rem;
+    }
+
+    .upload-area:hover {
+      background: #fef5e7;
+    }
+
+    .upload-area.dragover {
+      background: #ffeaa7;
+      border-color: #e67e22;
+    }
+
+    .tabs-header {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+    }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      text-align: center;
+      border-top: 3px solid #f39c12;
+    }
+
+    .stat-card h3 {
+      margin: 0;
+      color: #666;
+      font-size: 0.95rem;
+      text-transform: uppercase;
+    }
+
+    .stat-card p {
+      margin: 0.5rem 0 0 0;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #f39c12;
+    }
+
+    .blocked-users-list {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    .user-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .user-item:last-child {
+      border-bottom: none;
+    }
+
+    .user-info {
+      flex: 1;
+    }
+
+    .user-info p {
+      margin: 0.25rem 0;
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-container {
+        flex-direction: column;
+      }
+
+      .sidebar {
+        width: 100%;
+        height: auto;
+        position: relative;
+        display: flex;
+        flex-wrap: wrap;
+      }
+
+      .sidebar-header {
+        flex: 1 100%;
+      }
+
+      .sidebar-menu {
+        display: flex;
+        flex: 1 100%;
+        flex-wrap: wrap;
+      }
+
+      .sidebar-menu li {
+        flex: 1 auto;
+      }
+
+      .main-content {
+        margin-left: 0;
+      }
+
+      .sidebar-footer {
+        position: relative;
+        width: 100%;
+        bottom: auto;
+      }
+
+      .stats {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="dashboard-container">
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <div class="sidebar-header">
+        <h2>🏛️ Municipality</h2>
+        <p id="munWelcome" style="margin: 0.5rem 0 0; font-size: 0.9rem; opacity: 0.9;">Welcome</p>
+      </div>
+
+      <ul class="sidebar-menu">
+        <li><a class="menu-link active" data-view="dashboard">📊 Dashboard</a></li>
+        <li><a class="menu-link" data-view="new">🆕 New Complaints (Today)</a></li>
+        <li><a class="menu-link" data-view="unsolved">⏰ Unsolved Complaints (24h+)</a></li>
+        <li><a class="menu-link" data-view="processing">⚙️ Processing Complaints</a></li>
+        <li><a class="menu-link" data-view="history">📜 Completed History</a></li>
+        <li><a class="menu-link" data-view="blocked">🚫 Blocked Users</a></li>
+      </ul>
+
+      <div class="sidebar-footer">
+        <button class="logout-btn" onclick="logout()">🚪 Logout</button>
+      </div>
+    </div>
+
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Navbar -->
+      <div class="navbar">
+        <h1>Municipality Dashboard</h1>
+        <div class="profile-top" onclick="openProfileModal()">
+          <div id="profilePicSmall" class="profile-pic-small" style="display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; font-weight: bold; font-size: 1.5rem;">🏛️</div>
+        </div>
+      </div>
+
+      <!-- Content Area -->
+      <div class="content">
+        <div class="alert alert-success" id="successAlert"></div>
+        <div class="alert alert-danger" id="errorAlert"></div>
+
+        <!-- Dashboard Overview -->
+        <div class="tab-content active" id="dashboard-view">
+          <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Dashboard Overview</h2>
+          <div class="stats">
+            <div class="stat-card">
+              <h3>Today's Complaints</h3>
+              <p id="todayCount">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Unsolved (24h+)</h3>
+              <p id="unsolvedCount">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Completed</h3>
+              <p id="completedCount">0</p>
+            </div>
+            <div class="stat-card">
+              <h3>Blocked Users</h3>
+              <p id="blockedCount">0</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- New Complaints -->
+        <div class="tab-content" id="new-view">
+          <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Today's New Complaints</h2>
+          <div id="newComplaintsList" class="complaint-list"></div>
+        </div>
+
+        <!-- Unsolved Complaints -->
+        <div class="tab-content" id="unsolved-view">
+          <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Unsolved Complaints (More than 24 hours)</h2>
+          <div id="unsolvedComplaintsList" class="complaint-list"></div>
+        </div>
+
+        <!-- Processing Complaints -->
+        <div class="tab-content" id="processing-view">
+          <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Processing Complaints</h2>
+          <div id="processingComplaintsList" class="complaint-list"></div>
+        </div>
+
+        <!-- Completed History -->
+        <div class="tab-content" id="history-view">
+          <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Completed Complaints</h2>
+          <div id="historyComplaintsList" class="complaint-list"></div>
+        </div>
+
+        <!-- Blocked Users -->
+        <div class="tab-content" id="blocked-view">
+          <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Blocked Users</h2>
+          <div class="blocked-users-list" id="blockedUsersList"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Modal -->
+  <div id="profileModal" class="profile-modal">
+    <div class="profile-modal-content">
+      <span class="close" onclick="closeProfileModal()">&times;</span>
+      
+      <div id="profileView">
+        <h2 style="color: #f39c12; margin-bottom: 1.5rem;">Municipality Profile</h2>
+        <div style="text-align: center; margin-bottom: 2rem;">
+          <div id="profilePicLarge" style="width: 150px; height: 150px; border-radius: 50%; border: 3px solid #f39c12; margin: 0 auto; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%); color: white; font-size: 4rem;">🏛️</div>
+        </div>
+        <div id="profileInfo"></div>
+        <button class="btn btn-warning" style="width: 100%; margin-top: 1.5rem;" onclick="toggleEditMode()">✏️ Edit Profile</button>
+        <button class="btn btn-danger" style="width: 100%; margin-top: 0.5rem;" onclick="deleteAccount()">🗑️ Delete Account</button>
+      </div>
+
+      <form id="profileEditForm" class="profile-edit-form" style="display: none;">
+        <div class="form-group">
+          <label>Profile Picture</label>
+          <div class="upload-area" id="profileUploadArea">
+            <p>📷 Click or drag image here</p>
+            <input type="file" id="profileImageInput" name="profilePicture" accept="image/*" style="display: none;">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="editName">Municipality Name</label>
+          <input type="text" id="editName" name="name" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editLocation">Location</label>
+          <input type="text" id="editLocation" name="location" required>
+        </div>
+
+        <div class="form-group">
+          <label for="editRegNumber">Registration Number (Read-only)</label>
+          <input type="text" id="editRegNumber" name="regNumber" readonly>
+        </div>
+
+        <div style="display: flex; gap: 1rem;">
+          <button type="submit" class="btn btn-warning" style="flex: 1;">💾 Save Changes</button>
+          <button type="button" class="btn btn-secondary" style="flex: 1;" onclick="toggleEditMode()">❌ Cancel</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/municipality-dashboard.js"></script>
+</body>
+</html>
