@@ -9,10 +9,11 @@ console.log('   From Email:', process.env.BREVO_FROM_EMAIL || '❌ [Missing]');
 
 // Create email transporter with Brevo SMTP
 const transporter = nodemailer.createTransport({
-  // Force 465 (SSL) if 587 is requested but failing, or default to 465
+  // Try Port 2525 which is commonly used to bypass blocks on 587/465
   host: process.env.BREVO_SMTP_HOST || 'smtp-relay.brevo.com',
-  port: (process.env.BREVO_SMTP_PORT == '587' ? 465 : (parseInt(process.env.BREVO_SMTP_PORT) || 465)),
-  secure: (process.env.BREVO_SMTP_PORT == '587' || parseInt(process.env.BREVO_SMTP_PORT) === 465 || !process.env.BREVO_SMTP_PORT),
+  port: 2525,
+  secure: false, // Port 2525 is usually not implicit SSL
+  connectionTimeout: 10000, // 10 seconds
 
   auth: {
     user: process.env.BREVO_SMTP_USER,
