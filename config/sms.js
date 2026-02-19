@@ -1,48 +1,87 @@
-const twilio = require('twilio');
+const https = require('https');
 require('dotenv').config();
 
-console.log('📱 SMS Service Init:');
-console.log('   Account SID:', process.env.TWILIO_ACCOUNT_SID ? '***[Set]' : '❌ [Missing]');
-console.log('   Auth Token:', process.env.TWILIO_AUTH_TOKEN ? '***[Set]' : '❌ [Missing]');
-console.log('   From Phone:', process.env.TWILIO_PHONE_NUMBER || '❌ [Missing]');
+console.log('📱 SMS Service Init (Fast2SMS):');
+console.log('   API Key:', process.env.FAST2SMS_API_KEY ? '***[Set]' : '❌ [Missing]');
 
-// Initialize Twilio client
-let twilioClient;
-try {
-  twilioClient = twilio(
-    process.env.TWILIO_ACCOUNT_SID,
-    process.env.TWILIO_AUTH_TOKEN
-  );
-  console.log('✓ Twilio client initialized');
-} catch (error) {
-  console.error('❌ Failed to initialize Twilio:', error.message);
-}
-
-// Function to send OTP via SMS
+// Function to send OTP via Fast2SMS
 async function sendOtpSms(phoneNumber, otp) {
-  try {
-    let formattedPhone = phoneNumber;
-    if (!phoneNumber.startsWith('+')) {
-      formattedPhone = '+91' + phoneNumber;
+  return new Promise((resolve, reject) => {
+    try {
+      // Remove +91 or other prefixes if present, Fast2SMS expects 10 digits for India usually, 
+      // but their API documentation says "integers" for numbers. 
+      // Safest is to strip non-digit characters and take the last 10 digits for India.
+      let cleanPhone = phoneNumber.replace(/\D/g, '').slice(-10);
+
+      const apiKey = process.env.FAST2SMS_API_KEY;
+
+      if (!apiKey) {
+        console.error('❌ Fast2SMS API Key is missing in .env');
+        return resolve({ success: false, message: 'SMS Configuration Error' });
+      }
+
+      const postData = JSON.stringify({
+        "route": "otp",
+        "variables_values": otp,
+        "numbers": cleanPhone,
+      });
+
+      const options = {
+        method: 'POST',
+        hostname: 'www.fast2sms.com',
+        port: null,
+        path: '/dev/bulkV2',
+        headers: {
+          "authorization": apiKey,
+          "Content-Type": "application/json",
+          "Content-Length": postData.length
+        }
+      };
+
+      console.log(`📱 Sending OTP ${otp} to ${cleanPhone} via Fast2SMS...`);
+
+      const req = https.request(options, function (res) {
+        const chunks = [];
+
+        res.on("data", function (chunk) {
+          chunks.push(chunk);
+        });
+
+        res.on("end", function () {
+          const body = Buffer.concat(chunks);
+          const responseString = body.toString();
+          console.log('📨 Fast2SMS Response:', responseString);
+
+          try {
+            const responseData = JSON.parse(responseString);
+            // Fast2SMS returns "return": true on success
+            if (responseData.return) {
+              console.log('✓ SMS sent successfully');
+              resolve({ success: true, message: 'SMS sent successfully' });
+            } else {
+              console.error('❌ Fast2SMS Error:', responseData.message);
+              resolve({ success: false, message: 'Failed to send SMS: ' + responseData.message });
+            }
+          } catch (e) {
+            console.error('❌ Failed to parse SMS response:', e.message);
+            resolve({ success: false, message: 'SMS Provider Error' });
+          }
+        });
+      });
+
+      req.on('error', (e) => {
+        console.error('❌ HTTP Request Error:', e.message);
+        resolve({ success: false, message: 'Network Error calling SMS Provider' });
+      });
+
+      req.write(postData);
+      req.end();
+
+    } catch (error) {
+      console.error('❌ Error in sendOtpSms:', error.message);
+      resolve({ success: false, message: 'Internal SMS Error' });
     }
-
-    console.log(`📱 Attempting to send SMS OTP to: ${formattedPhone}`);
-
-    const message = await twilioClient.messages.create({
-      body: `Your Clean City Reporter OTP is: ${otp}\n\nThis OTP expires in 5 minutes. Do not share it with anyone.`,
-      from: process.env.TWILIO_PHONE_NUMBER,
-      to: formattedPhone
-    });
-
-    console.log(`✓ SMS OTP sent successfully to ${formattedPhone}. SID: ${message.sid}`);
-    return { success: true, message: 'SMS sent successfully', messageSid: message.sid };
-  } catch (error) {
-    console.error('❌ Error sending SMS:');
-    console.error('   Error Code:', error.code);
-    console.error('   Error Message:', error.message);
-    console.error('   Full Error:', JSON.stringify(error, null, 2));
-    return { success: false, message: 'Failed to send SMS', error: error.message };
-  }
+  });
 }
 
 module.exports = { sendOtpSms };
