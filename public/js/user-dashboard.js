@@ -1,7 +1,7 @@
 // Check authentication on page load
 document.addEventListener('DOMContentLoaded', () => {
   requireAuth();
-  
+
   if (getUserType() !== 'user') {
     window.location.href = '/';
   }
@@ -18,7 +18,7 @@ function setupEventListeners() {
     link.addEventListener('click', (e) => {
       const view = e.target.dataset.view;
       showView(view);
-      
+
       document.querySelectorAll('.menu-link').forEach(l => l.classList.remove('active'));
       e.target.classList.add('active');
     });
@@ -109,6 +109,7 @@ function displayProfileInfo(user) {
       <p><strong>Email:</strong> ${user.email}</p>
       <p><strong>Phone:</strong> ${user.phone}</p>
       <p><strong>Address:</strong> ${user.address}</p>
+      <p><strong>Zone:</strong> ${user.zone || 'Not Assigned'}</p>
       ${user.latitude && user.longitude ? `<p><strong>Location:</strong> <a href="${getMapLink(user.latitude, user.longitude)}" target="_blank">View on Map</a></p>` : ''}
       <p style="font-size: 0.85rem; color: #666; margin-top: 1rem;">Account Status: <span style="color: ${user.isBlocked ? '#e74c3c' : '#27ae60'};">${user.isBlocked ? '🔒 Blocked' : '✅ Active'}</span></p>
     </div>
@@ -120,7 +121,7 @@ async function loadComplaints() {
   try {
     const complaints = await apiRequest('/complaint/my-complaints');
     const list = document.getElementById('complaintsList');
-    
+
     if (complaints.length === 0) {
       list.innerHTML = '<p style="text-align: center; color: #666;">No complaints registered yet.</p>';
       return;
@@ -151,7 +152,7 @@ async function loadComplaintStatus() {
   try {
     const complaints = await apiRequest('/complaint/my-complaints');
     const list = document.getElementById('statusList');
-    
+
     if (complaints.length === 0) {
       list.innerHTML = '<p style="text-align: center; color: #666;">No complaints to track.</p>';
       return;
@@ -204,7 +205,7 @@ async function loadComplaintHistory() {
     const complaints = await apiRequest('/complaint/my-complaints');
     const solvedComplaints = complaints.filter(c => c.status === 'Completed');
     const list = document.getElementById('historyList');
-    
+
     if (solvedComplaints.length === 0) {
       list.innerHTML = '<p style="text-align: center; color: #666;">No solved complaints yet.</p>';
       return;
@@ -261,7 +262,7 @@ async function handleRegisterComplaint(e) {
 
     const response = await apiRequestFormData('/complaint/register', 'POST', formData);
     showAlert('Complaint registered successfully!', 'success');
-    
+
     document.getElementById('registerComplaintForm').reset();
     document.getElementById('imagePreview').style.display = 'none';
     const uploadArea = document.getElementById('uploadArea');
@@ -273,7 +274,7 @@ async function handleRegisterComplaint(e) {
     document.getElementById('getComplaintLocation').classList.remove('active');
     document.getElementById('getComplaintLocation').textContent = '📍 Get Current Location';
     document.getElementById('getComplaintLocation').style.borderColor = '#ddd';
-    
+
     setTimeout(() => {
       showView('complaints');
       document.querySelector('.menu-link[data-view="complaints"]').click();
@@ -294,7 +295,7 @@ async function getComplaintLocation(e) {
     btn.textContent = '📍 Getting Location...';
 
     const location = await getGeolocation();
-    
+
     document.getElementById('complaintLatitude').value = location.latitude;
     document.getElementById('complaintLongitude').value = location.longitude;
 

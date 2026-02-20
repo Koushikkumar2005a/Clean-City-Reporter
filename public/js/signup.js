@@ -1,5 +1,6 @@
 const otpState = {
-  emailOtpVerified: false
+  emailOtpVerified: false,
+  phoneOtpVerified: false
 };
 
 document.getElementById('userEmail').addEventListener('blur', async () => {
@@ -187,8 +188,90 @@ document.getElementById('verifyEmailOtp').addEventListener('click', async (e) =>
 });
 
 
+// Send Phone OTP
+document.getElementById('sendPhoneOtp').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const btn = e.target;
+  // Use email as key identifier but send to phone
+  const email = document.getElementById('userEmail').value;
+  const phone = document.getElementById('userPhone').value;
+  const statusDiv = document.getElementById('phoneOtpStatus');
 
+  if (!email || !phone) {
+    statusDiv.textContent = '❌ Please enter email and phone first';
+    statusDiv.style.color = '#d32f2f';
+    return;
+  }
 
+  try {
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+    statusDiv.textContent = '📱 Sending OTP to phone...';
+    statusDiv.style.color = '#666';
+
+    await apiRequest('/auth/send-otp', 'POST', { email, phone, type: 'phone' });
+
+    statusDiv.textContent = '✓ OTP sent to phone';
+    statusDiv.style.color = '#27ae60';
+
+    // Start 10-second timer
+    let timeLeft = 10;
+    btn.textContent = `Resend in ${timeLeft}s`;
+
+    const timerInterval = setInterval(() => {
+      timeLeft--;
+      if (timeLeft > 0) {
+        btn.textContent = `Resend in ${timeLeft}s`;
+      } else {
+        clearInterval(timerInterval);
+        btn.textContent = 'Resend OTP';
+        btn.disabled = false;
+      }
+    }, 1000);
+  } catch (error) {
+    statusDiv.textContent = '❌ ' + error.message;
+    statusDiv.style.color = '#d32f2f';
+    btn.disabled = false;
+    btn.textContent = 'Send OTP';
+  }
+});
+
+// Verify Phone OTP
+document.getElementById('verifyPhoneOtp').addEventListener('click', async (e) => {
+  e.preventDefault();
+  const btn = e.target;
+  const email = document.getElementById('userEmail').value;
+  const otp = document.getElementById('userPhoneOtp').value;
+  const statusDiv = document.getElementById('phoneOtpVerifyStatus');
+
+  if (!otp || otp.length !== 6) {
+    statusDiv.textContent = '❌ Please enter a valid 6-digit OTP';
+    statusDiv.style.color = '#d32f2f';
+    return;
+  }
+
+  try {
+    btn.disabled = true;
+    btn.textContent = 'Verifying...';
+    statusDiv.textContent = 'Verifying...';
+    statusDiv.style.color = '#666';
+
+    await apiRequest('/auth/verify-otp', 'POST', { email, otp, type: 'phone' });
+
+    otpState.phoneOtpVerified = true;
+    statusDiv.textContent = '✓ Phone OTP verified successfully';
+    statusDiv.style.color = '#27ae60';
+    btn.style.background = '#d4edda';
+    btn.style.color = '#27ae60';
+    btn.textContent = '✓ Phone OTP Verified';
+    btn.disabled = true;
+  } catch (error) {
+    statusDiv.textContent = '❌ ' + error.message;
+    statusDiv.style.color = '#d32f2f';
+    btn.disabled = false;
+    btn.textContent = 'Verify Phone OTP';
+  }
+});
 
 
 // User Signup
@@ -225,7 +308,10 @@ document.getElementById('userSignupForm').addEventListener('submit', async (e) =
     return;
   }
 
-
+  if (!otpState.phoneOtpVerified) {
+    showAlert('Please verify phone OTP first', 'danger');
+    return;
+  }
 
   try {
     // Create user account after OTPs verified

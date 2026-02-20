@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -201,6 +202,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="signup-container">
     <div class="signup-box">
@@ -239,20 +241,44 @@
         <!-- OTP Verification Section -->
         <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin: 1.5rem 0;">
           <h3 style="color: #27ae60; font-size: 1rem; margin-bottom: 1rem;">📧 Email Verification</h3>
-          
+
           <!-- Email OTP -->
           <div class="form-group">
             <label for="userEmailOtp">Email OTP</label>
             <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="userEmailOtp" name="emailOtp" placeholder="6-digit OTP" maxlength="6" style="flex: 1;">
-              <button type="button" class="signup-btn" id="sendEmailOtp" style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
+              <input type="text" id="userEmailOtp" name="emailOtp" placeholder="6-digit OTP" maxlength="6"
+                style="flex: 1;">
+              <button type="button" class="signup-btn" id="sendEmailOtp"
+                style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
             </div>
             <div id="emailOtpStatus" style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;"></div>
-            <button type="button" class="signup-btn" id="verifyEmailOtp" style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Email OTP</button>
+            <button type="button" class="signup-btn" id="verifyEmailOtp"
+              style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Email OTP</button>
             <div id="emailOtpVerifyStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
           </div>
 
 
+        </div>
+
+        <!-- Phone Verification Section -->
+        <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin: 1.5rem 0;">
+          <h3 style="color: #27ae60; font-size: 1rem; margin-bottom: 1rem;">📱 Phone Verification</h3>
+
+          <!-- Phone OTP -->
+          <div class="form-group">
+            <label for="userPhoneOtp">Phone OTP</label>
+            <div style="display: flex; gap: 0.5rem;">
+              <input type="text" id="userPhoneOtp" name="phoneOtp" placeholder="6-digit OTP" maxlength="6"
+                style="flex: 1;">
+              <button type="button" class="signup-btn" id="sendPhoneOtp"
+                style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send
+                OTP</button>
+            </div>
+            <div id="phoneOtpStatus" style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;"></div>
+            <button type="button" class="signup-btn" id="verifyPhoneOtp"
+              style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Phone OTP</button>
+            <div id="phoneOtpVerifyStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
+          </div>
         </div>
 
         <div class="form-group">
@@ -285,7 +311,8 @@
 
         <div class="form-group">
           <label for="userConfirmPassword">Confirm Password</label>
-          <input type="password" id="userConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+          <input type="password" id="userConfirmPassword" name="confirmPassword" placeholder="Confirm your password"
+            required>
         </div>
 
         <button type="submit" class="signup-btn">Create User Account</button>
@@ -313,7 +340,8 @@
             <option value="09">09 - Zone 9</option>
             <option value="10">10 - Zone 10</option>
           </select>
-          <div class="alert alert-danger" id="invalidRegAlert" style="display: none; margin-top: 0.5rem;">Invalid registration number. Please select from 01-10.</div>
+          <div class="alert alert-danger" id="invalidRegAlert" style="display: none; margin-top: 0.5rem;">Invalid
+            registration number. Please select from 01-10.</div>
         </div>
 
         <div class="form-group">
@@ -330,16 +358,19 @@
         <!-- OTP Verification Section -->
         <div style="background: #f9f9f9; padding: 1.5rem; border-radius: 4px; margin: 1.5rem 0;">
           <h3 style="color: #27ae60; font-size: 1rem; margin-bottom: 1rem;">📧 Email OTP Verification</h3>
-          
+
           <!-- Email OTP -->
           <div class="form-group">
             <label for="munEmailOtp">Email OTP</label>
             <div style="display: flex; gap: 0.5rem;">
-              <input type="text" id="munEmailOtp" name="emailOtp" placeholder="6-digit OTP" maxlength="6" style="flex: 1;">
-              <button type="button" class="signup-btn" id="sendMunEmailOtp" style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
+              <input type="text" id="munEmailOtp" name="emailOtp" placeholder="6-digit OTP" maxlength="6"
+                style="flex: 1;">
+              <button type="button" class="signup-btn" id="sendMunEmailOtp"
+                style="flex: 0 0 auto; width: auto; padding: 0.75rem 1.5rem; margin-top: 0;">Send OTP</button>
             </div>
             <div id="munEmailOtpStatus" style="font-size: 0.85rem; color: #666; margin-top: 0.25rem;"></div>
-            <button type="button" class="signup-btn" id="verifyMunEmailOtp" style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Email OTP</button>
+            <button type="button" class="signup-btn" id="verifyMunEmailOtp"
+              style="width: 100%; margin-top: 0.5rem; background: #f0f0f0; color: #333;">Verify Email OTP</button>
             <div id="munEmailOtpVerifyStatus" style="font-size: 0.85rem; margin-top: 0.25rem;"></div>
           </div>
         </div>
@@ -352,7 +383,8 @@
 
         <div class="form-group">
           <label for="munConfirmPassword">Confirm Password</label>
-          <input type="password" id="munConfirmPassword" name="confirmPassword" placeholder="Confirm your password" required>
+          <input type="password" id="munConfirmPassword" name="confirmPassword" placeholder="Confirm your password"
+            required>
         </div>
 
         <button type="submit" class="signup-btn">Create Municipality Account</button>
@@ -367,4 +399,5 @@
   <script src="js/api.js"></script>
   <script src="js/signup.js"></script>
 </body>
+
 </html>

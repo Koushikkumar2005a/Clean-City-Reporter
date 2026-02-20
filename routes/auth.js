@@ -15,9 +15,9 @@ function generateOtp() {
 
 router.post('/user-signup', async (req, res) => {
   try {
-    const { name, email, phone, password, confirmPassword, address, latitude, longitude } = req.body;
+    const { name, email, phone, password, confirmPassword, address, zone, latitude, longitude } = req.body;
 
-    if (!name || !email || !phone || !password || !confirmPassword || !address) {
+    if (!name || !email || !phone || !password || !confirmPassword || !address || !zone) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
@@ -39,11 +39,21 @@ router.post('/user-signup', async (req, res) => {
 
     // Ensure Email OTP verified
     const record = otpStore[email];
+    // Development backdoor for skipping OTP if needed, or stick to strict verification
+    // For now, strict:
     if (!record || !record.emailOtp) {
       return res.status(400).json({ message: 'OTP not setup. Please request email OTP first.' });
     }
     if (!record.emailOtp.verified) {
       return res.status(400).json({ message: 'Please verify email OTP before registering.' });
+    }
+
+    // Ensure Phone OTP verified
+    if (!record.phoneOtp) {
+      return res.status(400).json({ message: 'Phone OTP not setup. Please request phone OTP first.' });
+    }
+    if (!record.phoneOtp.verified) {
+      return res.status(400).json({ message: 'Please verify phone OTP before registering.' });
     }
 
     const user = new User({
@@ -52,6 +62,7 @@ router.post('/user-signup', async (req, res) => {
       phone,
       password: hashedPassword,
       address,
+      zone,
       latitude,
       longitude
     });

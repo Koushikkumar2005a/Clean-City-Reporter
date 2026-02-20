@@ -1,43 +1,45 @@
 const nodemailer = require('nodemailer');
 require('dotenv').config();
 
-console.log('📧 Brevo Email Service Init:');
-console.log('   SMTP Host:', process.env.BREVO_SMTP_HOST || '❌ [Missing]');
-console.log('   SMTP User:', process.env.BREVO_SMTP_USER ? '***[Set]' : '❌ [Missing]');
-console.log('   SMTP Password:', process.env.BREVO_SMTP_PASSWORD ? '***[Set]' : '❌ [Missing]');
-console.log('   From Email:', process.env.BREVO_FROM_EMAIL || '❌ [Missing]');
+console.log('📧 Email Service Init (SMTP):');
+console.log('   SMTP Host:', process.env.SMTP_HOST || '❌ [Missing]');
+console.log('   SMTP User:', process.env.SMTP_USER ? '***[Set]' : '❌ [Missing]');
+console.log('   SMTP Password:', process.env.SMTP_PASSWORD ? '***[Set]' : '❌ [Missing]');
+console.log('   From Email:', process.env.SMTP_FROM_EMAIL || '❌ [Missing]');
 
-// Create email transporter with Brevo SMTP
+// Create email transporter with Generic SMTP
 const transporter = nodemailer.createTransport({
-  host: process.env.BREVO_SMTP_HOST,
-  port: parseInt(process.env.BREVO_SMTP_PORT) || 587,
-  secure: false,
+  // Try Port 2525 which is commonly used to bypass blocks on 587/465
+  host: process.env.SMTP_HOST || 'smtp-relay.brevo.com',
+  port: 2525,
+  secure: false, // Port 2525 is usually not implicit SSL
+  connectionTimeout: 10000,
   auth: {
-    user: process.env.BREVO_SMTP_USER,
-    pass: process.env.BREVO_SMTP_PASSWORD
+    user: process.env.SMTP_USER,
+    pass: process.env.SMTP_PASSWORD
   }
 });
 
 // Verify transporter credentials
 transporter.verify((error, success) => {
   if (error) {
-    console.error('❌ Brevo email service verification failed:', error.message);
+    console.error('❌ Email service verification failed:', error.message);
   } else {
-    console.log('✓ Brevo email service ready');
+    console.log('✓ Email service ready');
   }
 });
 
 // Function to send OTP email
 async function sendOtpEmail(email, otp) {
   try {
-    if (!process.env.BREVO_SMTP_USER || !process.env.BREVO_SMTP_PASSWORD) {
-      return { success: false, message: 'Brevo SMTP credentials not configured', error: 'Missing credentials' };
+    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
+      return { success: false, message: 'SMTP credentials not configured', error: 'Missing credentials' };
     }
 
     console.log(`📧 Attempting to send email OTP to: ${email}`);
-    
+
     const mailOptions = {
-      from: `${process.env.BREVO_FROM_NAME || 'Clean City Reporter'} <${process.env.BREVO_FROM_EMAIL}>`,
+      from: `${process.env.SMTP_FROM_NAME || 'Clean City Reporter'} <${process.env.SMTP_FROM_EMAIL}>`,
       to: email,
       subject: 'Clean City Reporter - OTP Verification',
       html: `

@@ -24,6 +24,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true
   },
+  zone: {
+    type: String,
+    required: true
+  },
   latitude: {
     type: Number
   },

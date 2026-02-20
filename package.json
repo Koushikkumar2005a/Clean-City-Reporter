@@ -4,8 +4,8 @@
   "description": "Clean City Reporter - CSP Project for reporting city cleanliness complaints",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "nodemon server.js"
+    "start": "node scripts/start-server.js",
+    "dev": "nodemon scripts/start-server.js"
   },
   "keywords": [
     "clean",

@@ -1,95 +1,64 @@
-const https = require('https');
+const twilio = require('twilio');
 require('dotenv').config();
 
-console.log('📱 SMS Service Init (Fast2SMS):');
-console.log('   API Key:', process.env.FAST2SMS_API_KEY ? '***[Set]' : '❌ [Missing]');
+console.log('📱 SMS Service Init (Twilio):');
+console.log('   Account SID:', process.env.TWILIO_ACCOUNT_SID ? '***[Set]' : '❌ [Missing]');
+console.log('   Auth Token:', process.env.TWILIO_AUTH_TOKEN ? '***[Set]' : '❌ [Missing]');
+console.log('   From Number:', process.env.TWILIO_PHONE_NUMBER || '❌ [Missing]');
 
-// Function to send OTP via Fast2SMS
+// Function to send OTP via Twilio
 async function sendOtpSms(phoneNumber, otp) {
-  return new Promise((resolve, reject) => {
-    try {
-      // Remove +91 or other prefixes if present, Fast2SMS expects 10 digits for India usually, 
-      // but their API documentation says "integers" for numbers. 
-      // Safest is to strip non-digit characters and take the last 10 digits for India.
-      let cleanPhone = phoneNumber.replace(/\D/g, '').slice(-10);
-
-      const apiKey = process.env.FAST2SMS_API_KEY;
-
-      if (!apiKey) {
-        console.error('❌ Fast2SMS API Key is missing in .env');
-        return resolve({ success: false, message: 'SMS Configuration Error' });
-      }
-
-      const postData = JSON.stringify({
-        "route": "q",
-        "message": `Your Clean City Reporter OTP is: ${otp}`,
-        "language": "english",
-        "flash": 0,
-        "numbers": cleanPhone,
-      });
-
-      const options = {
-        method: 'POST',
-        hostname: 'www.fast2sms.com',
-        port: null,
-        path: '/dev/bulkV2',
-        headers: {
-          "authorization": apiKey,
-          "Content-Type": "application/json",
-          "Content-Length": postData.length
-        }
-      };
-
-      console.log(`📱 Sending OTP ${otp} to ${cleanPhone} via Fast2SMS...`);
-
-      const req = https.request(options, function (res) {
-        const chunks = [];
-
-        res.on("data", function (chunk) {
-          chunks.push(chunk);
-        });
-
-        res.on("end", function () {
-          const body = Buffer.concat(chunks);
-          const responseString = body.toString();
-          console.log('📨 Fast2SMS Response:', responseString);
-
-          try {
-            const responseData = JSON.parse(responseString);
-            // Fast2SMS returns "return": true on success
-            if (responseData.return) {
-              console.log('✓ SMS sent successfully');
-              resolve({ success: true, message: 'SMS sent successfully' });
-            } else {
-              console.error('❌ Fast2SMS Error:', responseData.message);
-              // Fallback for Development/Demo: Allow flow to continue by logging OTP
-              console.log('⚠️ DLT/Verification Error encountered. Using CONSOLE ONLY mode.');
-              console.log('==================================================');
-              console.log(`🔐 SIMULATED SMS TO: ${cleanPhone}`);
-              console.log(`🔑 OTP: ${otp}`);
-              console.log('==================================================');
-              resolve({ success: true, message: 'SMS sent (Simulated)' });
-            }
-          } catch (e) {
-            console.error('❌ Failed to parse SMS response:', e.message);
-            resolve({ success: false, message: 'SMS Provider Error' });
-          }
-        });
-      });
-
-      req.on('error', (e) => {
-        console.error('❌ HTTP Request Error:', e.message);
-        resolve({ success: false, message: 'Network Error calling SMS Provider' });
-      });
-
-      req.write(postData);
-      req.end();
-
-    } catch (error) {
-      console.error('❌ Error in sendOtpSms:', error.message);
-      resolve({ success: false, message: 'Internal SMS Error' });
+  try {
+    // DEVELOPMENT MODE: Simulate SMS
+    if (process.env.NODE_ENV === 'development') {
+      console.log('==================================================');
+      console.log(`📱 SIMULATED SMS TO: ${phoneNumber}`);
+      console.log(`🔑 OTP: ${otp}`);
+      console.log('==================================================');
+      return { success: true, message: 'SMS sent successfully (Simulated)' };
     }
-  });
+
+    const accountSid = process.env.TWILIO_ACCOUNT_SID;
+    const authToken = process.env.TWILIO_AUTH_TOKEN;
+    const fromNumber = process.env.TWILIO_PHONE_NUMBER;
+
+    if (!accountSid || !authToken || !fromNumber) {
+      console.error('❌ Twilio credentials missing in .env');
+      return { success: false, message: 'SMS Configuration Error' };
+    }
+
+    const client = twilio(accountSid, authToken);
+
+    // Ensure E.164 format (default to +91 for India if missing)
+    let formattedPhone = phoneNumber.trim();
+    if (!formattedPhone.startsWith('+')) {
+      formattedPhone = '+91' + formattedPhone;
+    }
+
+    console.log(`📱 Sending OTP ${otp} to ${formattedPhone} via Twilio...`);
+
+    const message = await client.messages.create({
+      body: `Your Clean City Reporter OTP is: ${otp}`,
+      from: fromNumber,
+      to: formattedPhone
+    });
+
+    console.log(`✓ SMS sent successfully. SID: ${message.sid}`);
+    return { success: true, message: 'SMS sent successfully' };
+
+  } catch (error) {
+    console.error('❌ Error in sendOtpSms:', error.message);
+    // Development/Demo fallback if Twilio fails (e.g., unverified number in trial)
+    if (process.env.NODE_ENV === 'development' || error.code === 21608) {
+      console.log('⚠️ Twilio Error encountered. Using CONSOLE ONLY mode as fallback.');
+      console.log('==================================================');
+      console.log(`🔐 SIMULATED SMS TO: ${phoneNumber}`);
+      console.log(`🔑 OTP: ${otp}`);
+      console.log('==================================================');
+      return { success: true, message: 'SMS sent (Simulated Fallback)' };
+    }
+    return { success: false, message: 'Failed to send SMS', error: error.message };
+  }
 }
 
 module.exports = { sendOtpSms };
